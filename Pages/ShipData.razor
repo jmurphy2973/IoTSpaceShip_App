@@ -1,6 +1,7 @@
 ﻿@page "/shipdata"
 @using IoTSpaceShip_App.Model
-@inject HttpClient Http
+@using Microsoft.Extensions.Logging
+@inject ILogger<ShipData> logger
 @inject IJSRuntime JSRuntime
 <br />
 <main class="container" role="main">
@@ -23,8 +24,8 @@
           <table class="table">
             <thead>
               <tr>
+                <th></th>
                 <th>Ship Info</th>
-                <th>Data</th>
               </tr>
             </thead>
             <tbody>
@@ -52,7 +53,7 @@
       </div>
       <div class="d-flex flex-sm-row flex-wrap justify-content-center mb-2">
         <div class="p-2 bd-highlight align-self-center">
-          <h3 class="bg-dark text-white rounded">Location Data</h3>
+          <h3 class="bg-dark text-white rounded">Location + Speed</h3>
           <table class="table">
             <thead>
               <tr>
@@ -63,11 +64,11 @@
             <tbody>
               <tr>
                 <td>Location: </td>
-                <td></td>
+                <td>@spaceship.Gps_N.ToString("0.0000") N @spaceship.Gps_W.ToString("0.0000") W</td>
               </tr>
               <tr>
                 <td>Velocity:</td>
-                <td></td>
+                <td>@spaceship.Velocity.ToString("0.0") MPH</td>
               </tr>
             </tbody>
           </table>
@@ -83,23 +84,45 @@
 
 </main>
 @code {
+  private System.Threading.Timer timer;
   private Spaceship spaceship;
+  private double Gps_n = 39.7042;
+  private double Gps_w = 86.3994;
+  private double Velocity = 11235.02;
 
   protected override async Task OnInitializedAsync()
   {
-    spaceship.Identifier = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Identifier");
-    spaceship.Description = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Description");
-    spaceship.Builder = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Builder");
-    spaceship.OriginPlanet = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.OriginPlanet");
-    spaceship.Classification = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Classification");
-    //spaceship.MaximumOccupancy = await JSRuntime.InvokeAsync<int>("localStorage.getItem", "spaceship.MaxOccupancy");
-    //spaceship.ProductionDate = await JSRuntime.InvokeAsync<DateTime>("localStorage.getItem", "spaceship.ProductionData");
-    spaceship = new Spaceship {
-
+    var identifier = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Identifier");
+    var description = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Description");
+    var builder = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Builder");
+    var originPlanet = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.OriginPlanet");
+    var classification = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Classification");
+    //var maximumOccupancy = await JSRuntime.InvokeAsync<int>("localStorage.getItem", "spaceship.MaxOccupancy");
+    //var productionDate = await JSRuntime.InvokeAsync<DateTime>("localStorage.getItem", "spaceship.ProductionData");
+    spaceship = new Spaceship
+    {
+      Identifier = identifier,
+      Description = description,
+      Builder = builder,
+      OriginPlanet = originPlanet,
+      Classification = classification,
+      ZipCode = "46168",
+      ProductionDate = new DateTime(2021, 10, 28),
+      Gps_N = Gps_n,
+      Gps_W = Gps_w,
+      Velocity = Velocity
     };
+    //StateHasChanged();
 
-
+    timer = new System.Threading.Timer(UpdateDataCallback, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
   }
 
-
+  private void UpdateDataCallback(object state)
+  {
+    var rand = new Random();
+    spaceship.Velocity += rand.Next(-10, 10);
+    spaceship.Gps_N += (rand.Next(-2, 2) * rand.NextDouble());
+    spaceship.Gps_W += (rand.Next(-2, 2) * rand.NextDouble());
+    StateHasChanged();
+  }
 }

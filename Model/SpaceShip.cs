@@ -20,9 +20,6 @@ namespace IoTSpaceShip_App.Model
     [Required]
     public string Classification { get; set; }
 
-    [Range(1, 100000, ErrorMessage = "Accommodation invalid (1-100000).")]
-    public int MaximumOccupancy { get; set; }
-
     /*
     [Required]
     [Range(typeof(bool), "true", "true",
@@ -31,10 +28,10 @@ namespace IoTSpaceShip_App.Model
     */
     [Required]
     public DateTime ProductionDate { get; set; }
-
-    public double Length { get; set; }
-    public double Width { get; set; }
-    public double Height { get; set; }
+    public string ZipCode { get; set; }
+    public double Gps_N { get; set; }  = 86.3994;
+    public double Gps_W { get; set; } = 39.7042;
+    public double Velocity { get; set; }
   }
 
   //public enum Classification { Discovery, Defense, Deplomacy, CommandAndConquer }
