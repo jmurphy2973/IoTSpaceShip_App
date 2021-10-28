@@ -1,0 +1,91 @@
+﻿
+@page "/createship"
+@using Microsoft.Extensions.Logging
+@using IoTSpaceShip_App.Model
+@inject ILogger<CreateShip> logger
+@inject IJSRuntime JSRuntime
+
+
+
+<main class="container">
+  <div class="d-flex align-items-center justify-content-center my-3 text-white bg-dark rounded shadow-sm">
+    <h1>Create a Spacecraft</h1>
+  </div>
+  <div class="my-3 p-3 bg-white rounded shadow-lg">
+    @if (spaceship == null)
+    {
+      <p><em>Loading...</em></p>
+    }
+    else
+    {
+
+      <EditForm Model="@spaceship" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+          <div class="row">
+            <div class="col">
+              <label for="identifier">Ship Identifier</label>
+              <InputText id="identifier" @bind-Value="spaceship.Identifier" class="form-control"></InputText>
+            </div>
+            <div class="col">
+              <label for="planet">Origin Planet</label>
+              <InputText id="planet" @bind-Value="spaceship.OriginPlanet" class="form-control"></InputText>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="description">Ship Description</label>
+          <InputTextArea id="description" @bind-Value="spaceship.Description" class="form-control"></InputTextArea>
+        </div>
+        <div class="form-group">
+          <div class="row">
+            <div class="col">
+              <label for="builder">Builder</label>
+              <InputText id="builder" @bind-Value="spaceship.Builder" class="form-control"></InputText>
+            </div>
+            <div class="col">
+              <label for="builddate">Commissioning Date</label>
+              <InputDate @bind-Value="spaceship.ProductionDate" class="form-control" />
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="row">
+            <div class="col">
+              <label for="classification">Classification</label>
+              <InputText id="identifier" @bind-Value="spaceship.Classification" class="form-control"></InputText>
+            </div>
+            <div class="col">
+              <label for="occupancy">Classification</label>
+              <InputNumber id="occupancy" @bind-Value="spaceship.MaximumOccupancy" class="form-control"></InputNumber>
+            </div>
+          </div>
+
+        </div>
+        <button type="submit" lass="btn btn-primary">Submit</button>
+
+      </EditForm>
+
+    }
+  </div>
+
+</main>
+@code {
+  private Spaceship spaceship = new() { ProductionDate = DateTime.UtcNow };
+
+  private async Task HandleValidSubmit()
+  {
+    logger.LogInformation("HandleValidSubmit called");
+    logger.LogInformation(spaceship.Description);
+
+    // Process the valid form
+    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "spaceship.Identifier", spaceship.Identifier);
+    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "spaceship.Description", spaceship.Description);
+    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "spaceship.Builder", spaceship.Builder);
+    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "spaceship.OriginPlanet", spaceship.OriginPlanet);
+    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "spaceship.Classification", spaceship.Classification);
+    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "spaceship.MaximumOccupancy", spaceship.MaximumOccupancy);
+    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "spaceship.ProductionDate", spaceship.ProductionDate);
+  }
+}

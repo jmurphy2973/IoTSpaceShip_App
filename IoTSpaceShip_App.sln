@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31729.503
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSpaceShip_App", "IoTSpaceShip_App.csproj", "{BAEB43D5-13A7-4E85-8642-3FBEC04FF1A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSpaceShip_App", "IoTSpaceShip_App.csproj", "{BAEB43D5-13A7-4E85-8642-3FBEC04FF1A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

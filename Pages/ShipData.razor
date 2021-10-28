@@ -1,5 +1,7 @@
 ﻿@page "/shipdata"
+@using IoTSpaceShip_App.Model
 @inject HttpClient Http
+@inject IJSRuntime JSRuntime
 <br />
 <main class="container" role="main">
   <div class="d-flex align-items-center justify-content-center my-3 text-white bg-dark rounded shadow-sm">
@@ -7,7 +9,7 @@
   </div>
   <div class="my-3 p-3 bg-white rounded shadow-lg">
 
-    @if (forecasts == null)
+    @if (spaceship == null)
     {
       <p><em>Loading...</em></p>
     }
@@ -21,22 +23,29 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
+                <th>Ship Info</th>
+                <th>Data</th>
               </tr>
             </thead>
             <tbody>
-              @foreach (var forecast in forecasts)
-              {
-                <tr>
-                  <td>@forecast.Date.ToShortDateString()</td>
-                  <td>@forecast.TemperatureC</td>
-                  <td>@forecast.TemperatureF</td>
-                  <td>@forecast.Summary</td>
-                </tr>
-              }
+              <tr>
+                <td>Ship Id</td>
+                <td>@spaceship.Identifier</td>
+              </tr>
+              <tr>
+                <td>Origin Planet</td>
+                <td>@spaceship.OriginPlanet</td>
+              </tr>
+              <tr>
+                <td>Description</td>
+                <td>@spaceship.Description</td>
+              </tr>
+              <tr>
+                <td>Builder</td>
+                <td>@spaceship.Builder</td>
+              </tr>
+
+
             </tbody>
           </table>
         </div>
@@ -74,21 +83,23 @@
 
 </main>
 @code {
-  private WeatherForecast[] forecasts;
+  private Spaceship spaceship;
 
   protected override async Task OnInitializedAsync()
   {
-    forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+    spaceship.Identifier = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Identifier");
+    spaceship.Description = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Description");
+    spaceship.Builder = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Builder");
+    spaceship.OriginPlanet = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.OriginPlanet");
+    spaceship.Classification = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Classification");
+    //spaceship.MaximumOccupancy = await JSRuntime.InvokeAsync<int>("localStorage.getItem", "spaceship.MaxOccupancy");
+    //spaceship.ProductionDate = await JSRuntime.InvokeAsync<DateTime>("localStorage.getItem", "spaceship.ProductionData");
+    spaceship = new Spaceship {
+
+    };
+
+
   }
 
-  public class WeatherForecast
-  {
-    public DateTime Date { get; set; }
 
-    public int TemperatureC { get; set; }
-
-    public string Summary { get; set; }
-
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-  }
 }
