@@ -1,5 +1,14 @@
-﻿
+﻿@page "/"
+@inject NavigationManager navigationManager
 
 <h1>Welcome to Space</h1>
 
 <SurveyPrompt Title="Space Craft Creator" />
+
+@code{
+  protected override async Task OnInitializedAsync()
+  {
+    navigationManager.NavigateTo("/createship");
+  }
+}
+

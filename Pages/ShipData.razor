@@ -51,14 +51,13 @@
           </table>
         </div>
       </div>
-      <div class="d-flex flex-sm-row flex-wrap justify-content-center mb-2">
-        <div class="p-2 bd-highlight align-self-center">
-          <h3 class="bg-dark text-white rounded">Location + Speed</h3>
+      <div class="row">
+        <div class="col col-6">
+          <h3 class="bg-secondary text-white text-center rounded">Location + Speed</h3>
           <table class="table">
             <thead>
               <tr>
-                <th>Variable</th>
-                <th>Data</th>
+                <th>Live Location</th>
               </tr>
             </thead>
             <tbody>
@@ -73,7 +72,45 @@
             </tbody>
           </table>
         </div>
+        <div class="col col-6">
+          <h3 class="bg-secondary text-white text-center rounded">Ship Status</h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Live Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Propulsion System: </td>
+                <td>ACTIVE</td>
+              </tr>
+              <tr>
+                <td>Thrust:</td>
+                <td>40 %</td>
+              </tr>
+              <tr>
+                <td>Payload Door: </td>
+                <td>OPEN</td>
+              </tr>
+              <tr>
+                <td>Pitch</td>
+                <td>@spaceship.Pitch &#176;</td>
+              </tr>
+              <tr>
+                <td>Roll</td>
+                <td>@spaceship.Roll &#176;</td>
+              </tr>
+              <tr>
+                <td>Yaw</td>
+                <td>@spaceship.Yaw &#176;</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
+      <br />
+      
 
     }
   </div>
@@ -110,7 +147,10 @@
       ProductionDate = new DateTime(2021, 10, 28),
       Gps_N = Gps_n,
       Gps_W = Gps_w,
-      Velocity = Velocity
+      Velocity = Velocity,
+      Pitch = 38,
+      Roll = 58,
+      Yaw = 128
     };
     //StateHasChanged();
 
@@ -123,6 +163,9 @@
     spaceship.Velocity += rand.Next(-10, 10);
     spaceship.Gps_N += (rand.Next(-2, 2) * rand.NextDouble());
     spaceship.Gps_W += (rand.Next(-2, 2) * rand.NextDouble());
+    spaceship.Pitch += (rand.Next(-2, 2));
+    spaceship.Yaw += (rand.Next(-2, 2));
+    spaceship.Roll += (rand.Next(-2, 2));
     StateHasChanged();
   }
 }
