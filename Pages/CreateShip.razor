@@ -1,9 +1,12 @@
 ﻿@page "/createship"
 @using Microsoft.Extensions.Logging
+@using System.Text.Json
 @using IoTSpaceShip_App.Model
+@using IoTSpaceShip_App.Model.ZipCodeService
 @inject ILogger<CreateShip> logger
 @inject IJSRuntime JSRuntime
 @inject NavigationManager navigationManager
+@inject HttpClient Http
 
 
 
@@ -73,6 +76,7 @@
 </main>
 @code {
   private Spaceship spaceship = new() { ProductionDate = DateTime.UtcNow };
+  private const string serviceEndpoint = "https://service-361.herokuapp.com/locate/";
 
   private async Task HandleValidSubmit()
   {
@@ -87,6 +91,19 @@
     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "spaceship.Classification", spaceship.Classification);
     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "spaceship.ZipCode", spaceship.ZipCode);
     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "spaceship.ProductionDate", spaceship.ProductionDate);
+
+    var zipQuery = serviceEndpoint + spaceship.ZipCode;
+
+
+    //var data = await Http.GetFromJsonAsync<Dictionary<string, CoordinateDto>>(zipQuery);
+    //var data = await Http.GetFromJsonAsync<Dictionary<string, object>>(zipQuery);
+    var data = await Http.GetFromJsonAsync<JsonElement>(zipQuery);
+    var lat = data.GetProperty(spaceship.ZipCode).GetProperty("lat").GetDouble();
+    var lng = data.GetProperty(spaceship.ZipCode).GetProperty("lng").GetDouble();
+
+    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "spaceship.Lat", lat);
+    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "spaceship.Lng", lng);
+
     navigationManager.NavigateTo("/shipdata");
   }
 }

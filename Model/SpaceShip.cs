@@ -32,9 +32,8 @@ namespace IoTSpaceShip_App.Model
     public double Gps_N { get; set; }  = 86.3994;
     public double Gps_W { get; set; } = 39.7042;
     public double Velocity { get; set; }
-    public int Pitch { get; set; }
-    public int Roll { get; set; }
-    public int Yaw { get; set; }
+    //public double Pitch { get; set; }
+    //public ShipStatus Status { get; set; }
   }
 
   //public enum Classification { Discovery, Defense, Deplomacy, CommandAndConquer }

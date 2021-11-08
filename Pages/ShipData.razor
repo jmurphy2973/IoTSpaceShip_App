@@ -3,6 +3,7 @@
 @using Microsoft.Extensions.Logging
 @inject ILogger<ShipData> logger
 @inject IJSRuntime JSRuntime
+@inject HttpClient Http
 <br />
 <main class="container" role="main">
   <div class="d-flex align-items-center justify-content-center my-3 text-white bg-dark rounded shadow-sm">
@@ -10,7 +11,7 @@
   </div>
   <div class="my-3 p-3 bg-white rounded shadow-lg">
 
-    @if (spaceship == null)
+    @if (status == null || spaceship == null)
     {
       <p><em>Loading...</em></p>
     }
@@ -83,27 +84,31 @@
             <tbody>
               <tr>
                 <td>Propulsion System: </td>
-                <td>ACTIVE</td>
+                <td>@(status?.PropulsionSystem?.Value)</td>
               </tr>
               <tr>
                 <td>Thrust:</td>
-                <td>40 %</td>
+                <td>@(status.Thrust.Value) %</td>
               </tr>
               <tr>
                 <td>Payload Door: </td>
-                <td>OPEN</td>
+                <td>@(status.DoorState.Value)</td>
               </tr>
               <tr>
                 <td>Pitch</td>
-                <td>@spaceship.Pitch &#176;</td>
+                <td>@(status?.Pitch?.Value)  &#176;</td>
               </tr>
               <tr>
-                <td>Roll</td>
-                <td>@spaceship.Roll &#176;</td>
+                <td>Engine RPM</td>
+                <td>@(status?.Engine_RPM.Value)</td>
               </tr>
               <tr>
-                <td>Yaw</td>
-                <td>@spaceship.Yaw &#176;</td>
+                <td>Engine Load</td>
+                <td>@(status?.Engine_Load?.Value)</td>
+              </tr>
+              <tr>
+                <td>Engine Temperature</td>
+                <td>@(status?.Engine_Temperature?.Value)  &#176;C</td>
               </tr>
             </tbody>
           </table>
@@ -123,8 +128,10 @@
 @code {
   private System.Threading.Timer timer;
   private Spaceship spaceship;
-  private double Gps_n = 39.7042;
-  private double Gps_w = 86.3994;
+  private ShipStatus status;
+  private const string serviceEndpoint = "https://cs361iotspacecraft.azurewebsites.net/api/shipstatus/current/";
+  private double Gps_n = 0;
+  private double Gps_w = 0;
   private double Velocity = 11235.02;
 
   protected override async Task OnInitializedAsync()
@@ -134,8 +141,10 @@
     var builder = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Builder");
     var originPlanet = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.OriginPlanet");
     var classification = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Classification");
-    //var maximumOccupancy = await JSRuntime.InvokeAsync<int>("localStorage.getItem", "spaceship.MaxOccupancy");
-    //var productionDate = await JSRuntime.InvokeAsync<DateTime>("localStorage.getItem", "spaceship.ProductionData");
+    var zip = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.ZipCode");
+    var lat = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Lat");
+    var lng = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Lng");
+
     spaceship = new Spaceship
     {
       Identifier = identifier,
@@ -143,29 +152,33 @@
       Builder = builder,
       OriginPlanet = originPlanet,
       Classification = classification,
-      ZipCode = "46168",
+      ZipCode = zip,
       ProductionDate = new DateTime(2021, 10, 28),
-      Gps_N = Gps_n,
-      Gps_W = Gps_w,
-      Velocity = Velocity,
-      Pitch = 38,
-      Roll = 58,
-      Yaw = 128
+      Gps_N = Convert.ToDouble(lat),
+      Gps_W = Convert.ToDouble(lng),
+      Velocity = Velocity
     };
-    //StateHasChanged();
-
-    timer = new System.Threading.Timer(UpdateDataCallback, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+    status = await Http.GetFromJsonAsync<ShipStatus>(serviceEndpoint);
+    timer = new System.Threading.Timer((_) =>
+    {
+      InvokeAsync(async () =>
+      {
+        status = await Http.GetFromJsonAsync<ShipStatus>(serviceEndpoint);
+        UpdateDataCallback();
+        StateHasChanged();
+      });
+    }, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
   }
 
-  private void UpdateDataCallback(object state)
+  private void UpdateDataCallback()
   {
+
     var rand = new Random();
     spaceship.Velocity += rand.Next(-10, 10);
     spaceship.Gps_N += (rand.Next(-2, 2) * rand.NextDouble());
     spaceship.Gps_W += (rand.Next(-2, 2) * rand.NextDouble());
-    spaceship.Pitch += (rand.Next(-2, 2));
-    spaceship.Yaw += (rand.Next(-2, 2));
-    spaceship.Roll += (rand.Next(-2, 2));
-    StateHasChanged();
+    //spaceship.Yaw += (rand.Next(-2, 2));
+    //spaceship.Roll += (rand.Next(-2, 2));
+
   }
 }
