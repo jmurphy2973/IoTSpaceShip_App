@@ -94,9 +94,6 @@
 
     var zipQuery = serviceEndpoint + spaceship.ZipCode;
 
-
-    //var data = await Http.GetFromJsonAsync<Dictionary<string, CoordinateDto>>(zipQuery);
-    //var data = await Http.GetFromJsonAsync<Dictionary<string, object>>(zipQuery);
     var data = await Http.GetFromJsonAsync<JsonElement>(zipQuery);
     var lat = data.GetProperty(spaceship.ZipCode).GetProperty("lat").GetDouble();
     var lng = data.GetProperty(spaceship.ZipCode).GetProperty("lng").GetDouble();
