@@ -136,6 +136,21 @@
 
   protected override async Task OnInitializedAsync()
   {
+    var spaceship = await BuildShip();
+    status = await Http.GetFromJsonAsync<ShipStatus>(serviceEndpoint);
+    timer = new System.Threading.Timer((_) =>
+    {
+      InvokeAsync(async () =>
+      {
+        status = await Http.GetFromJsonAsync<ShipStatus>(serviceEndpoint);
+        UpdateDataCallback();
+        StateHasChanged();
+      });
+    }, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
+  }
+
+  private async Task<Spaceship> BuildShip()
+  {
     var identifier = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Identifier");
     var description = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Description");
     var builder = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "spaceship.Builder");
@@ -158,16 +173,7 @@
       Gps_W = Convert.ToDouble(lng),
       Velocity = Velocity
     };
-    status = await Http.GetFromJsonAsync<ShipStatus>(serviceEndpoint);
-    timer = new System.Threading.Timer((_) =>
-    {
-      InvokeAsync(async () =>
-      {
-        status = await Http.GetFromJsonAsync<ShipStatus>(serviceEndpoint);
-        UpdateDataCallback();
-        StateHasChanged();
-      });
-    }, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
+    return spaceship;
   }
 
   private void UpdateDataCallback()
